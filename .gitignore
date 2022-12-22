@@ -1,6 +1,6 @@
 .vscode
 
-src/*.o
+*.o
 
 kursor
 default.kursor
