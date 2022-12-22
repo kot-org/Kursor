@@ -7,6 +7,7 @@
 #include "bits.h"
 
 typedef struct {
+    uint8_t Revision;
     uint8_t Width;
     uint8_t Height;
     uint64_t PixelMapOffset;
@@ -57,8 +58,14 @@ int main() {
     }
 
     fclose(tgaFile);
-    
-    KursorHeader header = { .Width = width, .Height = height, .PixelMapOffset = HeaderSize, .BitmapMaskOffset = HeaderSize + PixelMapSize};
+
+    KursorHeader* Header = (KursorHeader*) Kursor;
+
+    Header->Revision = 0;
+    Header->Width = width;
+    Header->Height = height;
+    Header->PixelMapOffset = HeaderSize;
+    Header->BitmapMaskOffset = HeaderSize + PixelMapSize;
 
     FILE* file = fopen("default.kursor", "w");
 
