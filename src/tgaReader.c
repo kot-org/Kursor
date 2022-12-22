@@ -15,11 +15,11 @@
 
 #include "tgaReader.h"
 
-const TGA_ORDER _TGA_READER_ARGB = {16, 8, 0, 24};
-const TGA_ORDER *TGA_READER_ARGB = &_TGA_READER_ARGB;
+TGA_ORDER _TGA_READER_ARGB = {16, 8, 0, 24};
+TGA_ORDER *TGA_READER_ARGB = &_TGA_READER_ARGB;
 
-const TGA_ORDER _TGA_READER_ABGR = {0, 8, 16, 24};
-const TGA_ORDER *TGA_READER_ABGR = &_TGA_READER_ABGR;
+TGA_ORDER _TGA_READER_ABGR = {0, 8, 16, 24};
+TGA_ORDER *TGA_READER_ABGR = &_TGA_READER_ABGR;
 
 void *tgaMalloc(size_t size) {
 	return malloc(size);
@@ -35,6 +35,10 @@ int tgaGetWidth(const unsigned char *buffer) {
 
 int tgaGetHeight(const unsigned char *buffer) {
 	return (buffer[14] & 0xFF) | (buffer[15] & 0xFF) << 8;
+}
+
+int tgaGetDepth(const unsigned char *buffer) {
+	return buffer[16] & 0xFF;
 }
 
 #define COLORMAP 1
@@ -65,7 +69,7 @@ int *tgaRead(const unsigned char *buffer, const TGA_ORDER *order) {
 //	int originY = (buffer[10] & 0xFF) | (buffer[11] & 0xFF) << 8; // unsupported
 	int width = tgaGetWidth(buffer);
 	int height = tgaGetHeight(buffer);
-	int depth = buffer[16] & 0xFF;
+	int depth = tgaGetDepth(buffer);
 	int descriptor = buffer[17] & 0xFF;
 	    
 	int *pixels = NULL;

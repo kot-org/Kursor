@@ -1,12 +1,9 @@
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -I./include
 
 SRC = $(wildcard src/*.c)
 OBJS = $(SRC:.c=.o)
 
-all: main link
+all: main
 
 main: $(OBJS)
-	gcc $(CFLAGS) $^ -o $@
-
-link:
-	ld $(OBJS) -o kursor
+	gcc $(CFLAGS) $^ -o kursor
