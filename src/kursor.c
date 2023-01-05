@@ -12,48 +12,53 @@ typedef struct {
     uint8_t Height;
     uint64_t PixelMapOffset;
     uint64_t BitmapMaskOffset;
-} KursorHeader;
+} __attribute__((__packed__)) KursorHeader;
 
 int main() {
 
-    FILE* tgaFile = fopen("img/test.tga", "rb");
+    FILE* tgaFile = fopen("img/default.tga", "rb");
+
+    if(tgaFile == NULL) return EXIT_FAILURE;
 
 	fseek(tgaFile, 0, SEEK_END);
-    int size = ftell(tgaFile);
+    uint64_t size = ftell(tgaFile);
 	fseek(tgaFile, 0, SEEK_SET);
 
-    uint8_t* buffer = tgaMalloc(size);
+    uint64_t* buffer = (uint64_t*) tgaMalloc(size);
     fread(buffer, size, 1, tgaFile);
 
-    uint8_t* pixel = tgaRead(buffer, TGA_READER_ARGB);
+    uint32_t* pixels = (uint32_t*) tgaRead(buffer, TGA_READER_ARGB);
     uint8_t tgaBtpp = tgaGetDepth(buffer) / 8;
 
-    uint64_t width = tgaGetWidth(buffer);
-    uint64_t height = tgaGetHeight(buffer);
-    uint64_t pitch = tgaGetWidth(buffer) * 4;
+    uint32_t width = tgaGetWidth(buffer);
+    uint32_t height = tgaGetHeight(buffer);
+    uint32_t pitch = width * 4;
+
+    tgaFree(buffer);
 
     uint64_t HeaderSize = sizeof(KursorHeader);
-    uint64_t PixelMapSize = width * pitch;
-    uint64_t BitmapSize = ceilf(width * pitch / 8);
+    uint64_t PixelMapSize = height * pitch;
+    uint64_t BitmapSize = ceilf(height * pitch / 8);
 
     uint64_t KursorSize = HeaderSize + PixelMapSize + BitmapSize;
     uintptr_t Kursor = malloc(KursorSize);
 
-    uint8_t* PixelMap = (uintptr_t) Kursor + HeaderSize;
+    uint32_t* PixelMap = (uintptr_t) Kursor + HeaderSize;
     uint8_t* BitmapMask = (uintptr_t) Kursor + (HeaderSize + PixelMapSize);
+    
+    int x = 0;
+    for(uint32_t h = 0; h < height; h++) {
+        for(uint32_t w = 0; w < width; w++) {
+            uint32_t tgaPitch = w * tgaBtpp; 
 
-    for(uint64_t h = 0; h < height; h++) {
-        for(uint64_t w = 0; w < width; w++) {
-            uint64_t tgaPitch = w * tgaBtpp; 
-
-            if(pixel[w * tgaBtpp + h * tgaPitch] == 0)
-                BIT_CLEAR(BitmapMask[h * w / 8], h * w % 8);
+            if((pixels[x] >> 24) & 0xFF == 0)
+                BIT_CLEAR(BitmapMask[x / 8], x % 8);
             else
-                BIT_SET(BitmapMask[h * w / 8], h * w % 8);
+                BIT_SET(BitmapMask[x / 8], x % 8);
 
-            for(uint64_t btpp = 1; btpp < 4; btpp++) {
-                PixelMap[w * 3 + h * (w * 3) + btpp] = pixel[w * tgaBtpp + h * tgaPitch + btpp];
-            }
+            PixelMap[x] = pixels[x];
+
+            x++;
         }
     }
 
@@ -71,7 +76,9 @@ int main() {
 
     fwrite(Kursor, KursorSize, 1, file);
 
+    free(Kursor);
+
     fclose(file);
     
-    return NULL;
+    return EXIT_SUCCESS;
 }

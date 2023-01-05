@@ -70,8 +70,9 @@ int *tgaRead(const unsigned char *buffer, const TGA_ORDER *order) {
 	int width = tgaGetWidth(buffer);
 	int height = tgaGetHeight(buffer);
 	int depth = tgaGetDepth(buffer);
+	
 	int descriptor = buffer[17] & 0xFF;
-	    
+
 	int *pixels = NULL;
 		
 	// data
@@ -153,7 +154,7 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
@@ -166,13 +167,14 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[width*i+(width-j-1)] = color;
+						pixels[x] = color;
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
@@ -185,7 +187,8 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[width*(height-i-1)+(width-j-1)] = color;
+						pixels[x] = color;
+						x++;
 					}
 				}
 			}
@@ -193,7 +196,7 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
@@ -206,13 +209,14 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[width*i+j] = color;
+						pixels[x] = color;
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
@@ -225,7 +229,8 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[width*(height-i-1)+j] = color;
+						pixels[x] = color;
+						x++;
 					}
 				}
 			}
@@ -236,7 +241,7 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
@@ -249,13 +254,14 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = palette[index+3] & 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[width*i+(width-j-1)] = color;
+						pixels[x] = color;
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
@@ -268,7 +274,8 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = palette[index+3] & 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[width*(height-i-1)+(width-j-1)] = color;
+						pixels[x] = color;
+						x++;
 					}
 				}
 			}
@@ -276,7 +283,7 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
@@ -289,13 +296,14 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = palette[index+3] & 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[width*i+j] = color;
+						pixels[x] = color;
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
@@ -308,7 +316,8 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = palette[index+3] & 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[width*(height-i-1)+j] = color;
+						pixels[x] = color;
+						x++;
 					}
 				}
 			}
@@ -332,7 +341,7 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int index = offset+3*width*i+3*j;
@@ -340,13 +349,15 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = 0xFF;
-						pixels[width*i+(width-j-1)] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int index = offset+3*width*i+3*j;
@@ -354,7 +365,9 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = 0xFF;
-						pixels[width*(height-i-1)+(width-j-1)] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
@@ -362,7 +375,7 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int index = offset+3*width*i+3*j;
@@ -370,13 +383,15 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = 0xFF;
-						pixels[width*i+j] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int index = offset+3*width*i+3*j;
@@ -384,7 +399,9 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = 0xFF;
-						pixels[width*(height-i-1)+j] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						
+						x++;
 					}
 				}
 			}
@@ -395,7 +412,7 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int index = offset+4*width*i+4*j;
@@ -403,13 +420,15 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = bytes[index+3] & 0xFF;
-						pixels[width*i+(width-j-1)] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int index = offset+4*width*i+4*j;
@@ -417,7 +436,9 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = bytes[index+3] & 0xFF;
-						pixels[width*(height-i-1)+(width-j-1)] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
@@ -425,7 +446,7 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int index = offset+4*width*i+4*j;
@@ -433,13 +454,15 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = bytes[index+3] & 0xFF;
-						pixels[width*i+j] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						pixels[j + i] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int index = offset+4*width*i+4*j;
@@ -447,7 +470,9 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = bytes[index+3] & 0xFF;
-						pixels[width*(height-i-1)+j] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+						pixels[j + i] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
@@ -456,6 +481,7 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 	default:
 		break;
 	}
+
 	return pixels;
 }
 	
@@ -471,23 +497,27 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int e = bytes[offset+width*i+j] & 0xFF;
 						int a = 0xFF;
-						pixels[width*i+(width-j-1)] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int e = bytes[offset+width*i+j] & 0xFF;
 						int a = 0xFF;
-						pixels[width*(height-i-1)+(width-j-1)] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						
+						x++;
 					}
 				}
 			}
@@ -495,23 +525,27 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int e = bytes[offset+width*i+j] & 0xFF;
 						int a = 0xFF;
-						pixels[width*i+j] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int e = bytes[offset+width*i+j] & 0xFF;
 						int a = 0xFF;
-						pixels[width*(height-i-1)+j] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
@@ -522,23 +556,27 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int e = bytes[offset+2*width*i+2*j+0] & 0xFF;
 						int a = bytes[offset+2*width*i+2*j+1] & 0xFF;
-						pixels[width*i+(width-j-1)] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int e = bytes[offset+2*width*i+2*j+0] & 0xFF;
 						int a = bytes[offset+2*width*i+2*j+1] & 0xFF;
-						pixels[width*(height-i-1)+(width-j-1)] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
@@ -546,23 +584,27 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int e = bytes[offset+2*width*i+2*j+0] & 0xFF;
 						int a = bytes[offset+2*width*i+2*j+1] & 0xFF;
-						pixels[width*i+j] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j;
+				int i, j, x;
 				for(i=0; i<height; i++) {
 					for(j=0; j<width; j++) {
 						int e = bytes[offset+2*width*i+2*j+0] & 0xFF;
 						int a = bytes[offset+2*width*i+2*j+1] & 0xFF;
-						pixels[width*(height-i-1)+j] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
+
+						x++;
 					}
 				}
 			}
