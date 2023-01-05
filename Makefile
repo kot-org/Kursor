@@ -7,3 +7,6 @@ all: main
 
 main: $(OBJS)
 	gcc $(CFLAGS) $^ -o kursor
+	
+convert:
+	./kursor
