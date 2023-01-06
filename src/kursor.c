@@ -6,6 +6,9 @@
 #include "tgaReader.h"
 #include "bits.h"
 
+#define KURSOR_VERSION  "0"
+#define KURSOR_REVISION 1
+
 typedef struct {
     uint8_t Revision;
     uint8_t Width;
@@ -14,11 +17,23 @@ typedef struct {
     uint64_t BitmapMaskOffset;
 } __attribute__((__packed__)) KursorHeader;
 
-int main() {
+int main(int argc, char* argv[]) {
 
-    FILE* tgaFile = fopen("img/default.tga", "rb");
+    if(argc < 3) {
+        printf("TGA to Kursor converter\n");
+        printf("Version: %s\n\n", KURSOR_VERSION);
+        printf("Usage: ./convert [InputFile].tga [OutputFile].kursor\n");
 
-    if(tgaFile == NULL) return EXIT_FAILURE;
+        return EXIT_FAILURE;
+    }
+
+    FILE* tgaFile = fopen(argv[1], "rb");
+
+    if(tgaFile == NULL) {
+        printf("The file doesn't exist.\n");
+
+        return EXIT_FAILURE;
+    }
 
 	fseek(tgaFile, 0, SEEK_END);
     uint64_t size = ftell(tgaFile);
@@ -66,13 +81,13 @@ int main() {
 
     KursorHeader* Header = (KursorHeader*) Kursor;
 
-    Header->Revision = 0;
+    Header->Revision = KURSOR_REVISION;
     Header->Width = width;
     Header->Height = height;
     Header->PixelMapOffset = HeaderSize;
     Header->BitmapMaskOffset = HeaderSize + PixelMapSize;
 
-    FILE* file = fopen("default.kursor", "w");
+    FILE* file = fopen(argv[2], "w");
 
     fwrite(Kursor, KursorSize, 1, file);
 

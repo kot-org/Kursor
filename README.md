@@ -4,5 +4,5 @@
 ## 🚀 build 
 ```
 make
-make convert
+./convert [InputFile].tga [OutputFile].kursor
 ```

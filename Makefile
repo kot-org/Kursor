@@ -6,7 +6,4 @@ OBJS = $(SRC:.c=.o)
 all: main
 
 main: $(OBJS)
-	gcc $(CFLAGS) $^ -o kursor
-	
-convert:
-	./kursor
+	gcc $(CFLAGS) $^ -o convert
