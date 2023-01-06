@@ -2,5 +2,5 @@
 
 src/*.o
 
-kursor
-default.kursor
+convert
+*.kursor
