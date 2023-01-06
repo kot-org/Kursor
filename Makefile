@@ -6,4 +6,4 @@ OBJS = $(SRC:.c=.o)
 all: main
 
 main: $(OBJS)
-	gcc $(CFLAGS) $^ -o convert
+	gcc $(CFLAGS) $^ -o konvert

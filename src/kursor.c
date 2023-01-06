@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     if(argc < 3) {
         printf("TGA to Kursor converter\n");
         printf("Version: %s\n\n", KURSOR_VERSION);
-        printf("Usage: ./convert [InputFile].tga [OutputFile].kursor\n");
+        printf("Usage: ./konvert [InputFile].tga [OutputFile].kursor\n");
 
         return EXIT_FAILURE;
     }
@@ -49,7 +49,6 @@ int main(int argc, char* argv[]) {
     uint32_t height = tgaGetHeight(buffer);
     uint32_t pitch = width * 4;
 
-    tgaFree(buffer);
 
     uint64_t HeaderSize = sizeof(KursorHeader);
     uint64_t PixelMapSize = height * pitch;
@@ -77,6 +76,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    tgaFree(buffer);
     fclose(tgaFile);
 
     KursorHeader* Header = (KursorHeader*) Kursor;
