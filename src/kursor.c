@@ -60,16 +60,17 @@ int main(int argc, char* argv[]) {
     uint32_t* PixelMap = (uintptr_t) Kursor + HeaderSize;
     uint8_t* BitmapMask = (uintptr_t) Kursor + (HeaderSize + PixelMapSize);
     
-    int x = 0;
-    for(uint32_t h = 0; h < height; h++) {
-        for(uint32_t w = 0; w < width; w++) {
-            uint32_t tgaPitch = w * tgaBtpp; 
+    for(uint64_t h = 0; h < height; h++) {
+        for(uint64_t w = 0; w < width; w++) {
+            uint64_t tgaPitch = w * tgaBtpp; 
+            uint64_t x = h * width + w;
 
-            if((pixels[x] >> 24) & 0xFF == 0)
+
+            if(((pixels[x] >> 24) & 0xFF) == 0){
                 BIT_CLEAR(BitmapMask[x / 8], x % 8);
-            else
+            }else{
                 BIT_SET(BitmapMask[x / 8], x % 8);
-
+            }
             PixelMap[x] = pixels[x];
 
             x++;

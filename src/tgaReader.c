@@ -111,6 +111,7 @@ int *tgaRead(const unsigned char *buffer, const TGA_ORDER *order) {
 
 }
 
+
 static unsigned char *decodeRLE(int width, int height, int depth, const unsigned char *buffer, int offset) {
 	int elementCount = depth/8;
 	unsigned char elements[4];
@@ -143,8 +144,6 @@ static unsigned char *decodeRLE(int width, int height, int depth, const unsigned
 }
 
 static int *createPixelsFromColormap(int width, int height, int depth, const unsigned char *bytes, int offset, const unsigned char *palette, int colormapOrigin, int descriptor, const TGA_ORDER *order) {
-	bool isReversed = !(descriptor & (1 << 5));
-	
 	int *pixels = NULL;
 	int rs = order->redShift;
 	int gs = order->greenShift;
@@ -156,11 +155,10 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int colormapIndex = bytes[offset+width*h+j] & 0xFF - colormapOrigin;
+						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
 						int color = 0xFFFFFFFF;
 						if(colormapIndex >= 0) {
 							int index = 3*colormapIndex+18;
@@ -170,18 +168,16 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[x] = color;
-						x++;
+						pixels[width*i+(width-j-1)] = color;
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int colormapIndex = bytes[offset+width*h+j] & 0xFF - colormapOrigin;
+						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
 						int color = 0xFFFFFFFF;
 						if(colormapIndex >= 0) {
 							int index = 3*colormapIndex+18;
@@ -191,8 +187,7 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[x] = color;
-						x++;
+						pixels[width*(height-i-1)+(width-j-1)] = color;
 					}
 				}
 			}
@@ -200,11 +195,10 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int colormapIndex = bytes[offset+width*h+j] & 0xFF - colormapOrigin;
+						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
 						int color = 0xFFFFFFFF;
 						if(colormapIndex >= 0) {
 							int index = 3*colormapIndex+18;
@@ -214,18 +208,16 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[x] = color;
-						x++;
+						pixels[width*i+j] = color;
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int colormapIndex = bytes[offset+width*h+j] & 0xFF - colormapOrigin;
+						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
 						int color = 0xFFFFFFFF;
 						if(colormapIndex >= 0) {
 							int index = 3*colormapIndex+18;
@@ -235,8 +227,7 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[x] = color;
-						x++;
+						pixels[width*(height-i-1)+j] = color;
 					}
 				}
 			}
@@ -247,11 +238,10 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int colormapIndex = bytes[offset+width*h+j] & 0xFF - colormapOrigin;
+						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
 						int color = 0xFFFFFFFF;
 						if(colormapIndex >= 0) {
 							int index = 4*colormapIndex+18;
@@ -261,18 +251,16 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = palette[index+3] & 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[x] = color;
-						x++;
+						pixels[width*i+(width-j-1)] = color;
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int colormapIndex = bytes[offset+width*h+j] & 0xFF - colormapOrigin;
+						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
 						int color = 0xFFFFFFFF;
 						if(colormapIndex >= 0) {
 							int index = 4*colormapIndex+18;
@@ -282,8 +270,7 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = palette[index+3] & 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[x] = color;
-						x++;
+						pixels[width*(height-i-1)+(width-j-1)] = color;
 					}
 				}
 			}
@@ -291,11 +278,10 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int colormapIndex = bytes[offset+width*h+j] & 0xFF - colormapOrigin;
+						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
 						int color = 0xFFFFFFFF;
 						if(colormapIndex >= 0) {
 							int index = 4*colormapIndex+18;
@@ -305,18 +291,16 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = palette[index+3] & 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[x] = color;
-						x++;
+						pixels[width*i+j] = color;
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int colormapIndex = bytes[offset+width*h+j] & 0xFF - colormapOrigin;
+						int colormapIndex = bytes[offset+width*i+j] & 0xFF - colormapOrigin;
 						int color = 0xFFFFFFFF;
 						if(colormapIndex >= 0) {
 							int index = 4*colormapIndex+18;
@@ -326,8 +310,7 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 							int a = palette[index+3] & 0xFF;
 							color = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 						}
-						pixels[x] = color;
-						x++;
+						pixels[width*(height-i-1)+j] = color;
 					}
 				}
 			}
@@ -340,8 +323,6 @@ static int *createPixelsFromColormap(int width, int height, int depth, const uns
 }
 	
 static int *createPixelsFromRGB(int width, int height, int depth, const unsigned char *bytes, int offset, int descriptor, const TGA_ORDER *order) {
-	bool isReversed = !(descriptor & (1 << 5));
-	
 	int *pixels = NULL;
 	int rs = order->redShift;
 	int gs = order->greenShift;
@@ -353,35 +334,29 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int index = offset+3*width*h+3*j;
+						int index = offset+3*width*i+3*j;
 						int b = bytes[index+0] & 0xFF;
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = 0xFF;
-						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
-
-						x++;
+						pixels[width*i+(width-j-1)] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int index = offset+3*width*h+3*j;
+						int index = offset+3*width*i+3*j;
 						int b = bytes[index+0] & 0xFF;
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = 0xFF;
-						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
-
-						x++;
+						pixels[width*(height-i-1)+(width-j-1)] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 					}
 				}
 			}
@@ -389,35 +364,29 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int index = offset+3*width*h+3*j;
+						int index = offset+3*width*i+3*j;
 						int b = bytes[index+0] & 0xFF;
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = 0xFF;
-						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
-
-						x++;
+						pixels[width*i+j] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int index = offset+3*width*h+3*j;
+						int index = offset+3*width*i+3*j;
 						int b = bytes[index+0] & 0xFF;
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = 0xFF;
-						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
-						
-						x++;
+						pixels[width*(height-i-1)+j] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 					}
 				}
 			}
@@ -428,35 +397,29 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int index = offset+4*width*h+4*j;
+						int index = offset+4*width*i+4*j;
 						int b = bytes[index+0] & 0xFF;
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = bytes[index+3] & 0xFF;
-						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
-
-						x++;
+						pixels[width*i+(width-j-1)] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int index = offset+4*width*h+4*j;
+						int index = offset+4*width*i+4*j;
 						int b = bytes[index+0] & 0xFF;
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = bytes[index+3] & 0xFF;
-						pixels[x] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
-
-						x++;
+						pixels[width*(height-i-1)+(width-j-1)] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 					}
 				}
 			}
@@ -464,35 +427,29 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int index = offset+4*width*h+4*j;
+						int index = offset+4*width*i+4*j;
 						int b = bytes[index+0] & 0xFF;
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = bytes[index+3] & 0xFF;
-						pixels[j + i] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
-						
-						x++;
+						pixels[width*i+j] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int index = offset+4*width*h+4*j;
+						int index = offset+4*width*i+4*j;
 						int b = bytes[index+0] & 0xFF;
 						int g = bytes[index+1] & 0xFF;
 						int r = bytes[index+2] & 0xFF;
 						int a = bytes[index+3] & 0xFF;
-						pixels[j + i] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
-
-						x++;
+						pixels[width*(height-i-1)+j] = (r<<rs) | (g<<gs) | (b<<bs) | (a<<as);
 					}
 				}
 			}
@@ -501,13 +458,10 @@ static int *createPixelsFromRGB(int width, int height, int depth, const unsigned
 	default:
 		break;
 	}
-
 	return pixels;
 }
 	
 static int *createPixelsFromGrayscale(int width, int height, int depth, const unsigned char *bytes, int offset, int descriptor, const TGA_ORDER *order) {
-	bool isReversed = !(descriptor & (1 << 5));
-
 	int *pixels = NULL;
 	int rs = order->redShift;
 	int gs = order->greenShift;
@@ -519,29 +473,23 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int e = bytes[offset+width*h+j] & 0xFF;
+						int e = bytes[offset+width*i+j] & 0xFF;
 						int a = 0xFF;
-						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
-
-						x++;
+						pixels[width*i+(width-j-1)] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int e = bytes[offset+width*h+j] & 0xFF;
+						int e = bytes[offset+width*i+j] & 0xFF;
 						int a = 0xFF;
-						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
-						
-						x++;
+						pixels[width*(height-i-1)+(width-j-1)] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
 					}
 				}
 			}
@@ -549,29 +497,23 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int e = bytes[offset+width*h+j] & 0xFF;
+						int e = bytes[offset+width*i+j] & 0xFF;
 						int a = 0xFF;
-						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
-
-						x++;
+						pixels[width*i+j] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int e = bytes[offset+width*h+j] & 0xFF;
+						int e = bytes[offset+width*i+j] & 0xFF;
 						int a = 0xFF;
-						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
-
-						x++;
+						pixels[width*(height-i-1)+j] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
 					}
 				}
 			}
@@ -582,29 +524,23 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 		if((descriptor & RIGHT_ORIGIN) != 0) {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int e = bytes[offset+2*width*h+2*j+0] & 0xFF;
-						int a = bytes[offset+2*width*h+2*j+1] & 0xFF;
-						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
-						
-						x++;
+						int e = bytes[offset+2*width*i+2*j+0] & 0xFF;
+						int a = bytes[offset+2*width*i+2*j+1] & 0xFF;
+						pixels[width*i+(width-j-1)] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
 					}
 				}
 			}
 			else {
 				// LowerRight
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int e = bytes[offset+2*width*h+2*j+0] & 0xFF;
-						int a = bytes[offset+2*width*h+2*j+1] & 0xFF;
-						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
-
-						x++;
+						int e = bytes[offset+2*width*i+2*j+0] & 0xFF;
+						int a = bytes[offset+2*width*i+2*j+1] & 0xFF;
+						pixels[width*(height-i-1)+(width-j-1)] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
 					}
 				}
 			}
@@ -612,29 +548,23 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 		else {
 			if((descriptor & UPPER_ORIGIN) != 0) {
 				// UpperLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int e = bytes[offset+2*width*h+2*j+0] & 0xFF;
-						int a = bytes[offset+2*width*h+2*j+1] & 0xFF;
-						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
-
-						x++;
+						int e = bytes[offset+2*width*i+2*j+0] & 0xFF;
+						int a = bytes[offset+2*width*i+2*j+1] & 0xFF;
+						pixels[width*i+j] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
 					}
 				}
 			}
 			else {
 				// LowerLeft
-				int i, j, x, h;
+				int i, j;
 				for(i=0; i<height; i++) {
-					h = (isReversed) ? height-i-1 : i;
 					for(j=0; j<width; j++) {
-						int e = bytes[offset+2*width*h+2*j+0] & 0xFF;
-						int a = bytes[offset+2*width*h+2*j+1] & 0xFF;
-						pixels[x] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
-
-						x++;
+						int e = bytes[offset+2*width*i+2*j+0] & 0xFF;
+						int a = bytes[offset+2*width*i+2*j+1] & 0xFF;
+						pixels[width*(height-i-1)+j] = (e<<rs) | (e<<gs) | (e<<bs) | (a<<as);
 					}
 				}
 			}
@@ -645,5 +575,3 @@ static int *createPixelsFromGrayscale(int width, int height, int depth, const un
 	}
 	return pixels;
 }
-
-/* EOF */
