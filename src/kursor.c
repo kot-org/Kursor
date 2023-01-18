@@ -49,6 +49,12 @@ int main(int argc, char* argv[]) {
     uint32_t height = tgaGetHeight(buffer);
     uint32_t pitch = width * 4;
 
+    if(width > 255 || height > 255){
+        printf("The image is too big, it must have a width and length less than 255. \n");
+
+        return EXIT_FAILURE;
+    }
+
 
     uint64_t HeaderSize = sizeof(KursorHeader);
     uint64_t PixelMapSize = height * pitch;
